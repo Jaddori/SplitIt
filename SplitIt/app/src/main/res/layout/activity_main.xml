@@ -27,34 +27,38 @@
         android:id="@+id/btn_edit"
         android:layout_width="@dimen/btn_edit_width"
         android:layout_height="@dimen/btn_edit_height"
+        android:layout_marginEnd="8dp"
         android:layout_weight="1"
         android:text="@string/edit"
         app:layout_constraintBottom_toTopOf="@+id/btn_toggleScan"
         app:layout_constraintEnd_toEndOf="@+id/preview" />
 
-    <TextView
-        android:id="@+id/lbl_total"
-        android:layout_width="0dp"
-        android:layout_height="@android:dimen/app_icon_size"
-        android:layout_marginStart="8dp"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:text="@string/total"
-        android:textAlignment="viewStart"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_toggleScan"
-        app:layout_constraintEnd_toStartOf="@+id/btn_edit"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <Button
         android:id="@+id/btn_toggleScan"
         android:layout_width="0dp"
         android:layout_height="@dimen/lbl_total_height"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:layout_weight="10"
         android:text="@string/scan_toggle_scan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/lbl_total"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center_vertical"
+        android:text="@string/total"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_toggleScan"
+        app:layout_constraintEnd_toStartOf="@+id/btn_edit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/preview" />
 
 </android.support.constraint.ConstraintLayout>

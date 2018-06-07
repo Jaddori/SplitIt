@@ -8,4 +8,9 @@
     <string name="scan_toggle_freeze">Freeze</string>
     <string name="total">Total:</string>
     <string name="edit">Edit</string>
+    <string name="header_price">Price</string>
+    <string name="header_split">Split</string>
+    <string name="header_include">Include</string>
+    <string name="reset">Reset</string>
+    <string name="back">Back</string>
 </resources>

@@ -18,14 +18,22 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -37,8 +45,15 @@ public class MainActivity extends AppCompatActivity
 	private CameraSource _cameraSource;
 	private CameraSourcePreview _preview;
 	private GraphicOverlay<OcrGraphic> _graphicOverlay;
+	private TextView lbl_total;
+	private Button btn_toggleScan;
+	private Button btn_edit;
+	private boolean _frozen;
 
 	private GestureDetector _gestureDetector;
+	private OcrDetectorProcessor _detectorProcessor;
+
+	private Set<OcrGraphic> _selectedGraphics;
 
 	@Override
 	protected void onCreate( Bundle savedInstanceState )
@@ -46,8 +61,14 @@ public class MainActivity extends AppCompatActivity
 		super.onCreate( savedInstanceState );
 		setContentView( R.layout.activity_main );
 
+		_frozen = true;
+		_selectedGraphics = new HashSet<OcrGraphic>();
+
 		_preview = (CameraSourcePreview)findViewById( R.id.preview );
 		_graphicOverlay = (GraphicOverlay<OcrGraphic>)findViewById( R.id.graphicOverlay );
+		lbl_total = (TextView)findViewById( R.id.lbl_total );
+		btn_toggleScan = (Button)findViewById( R.id.btn_toggleScan );
+		btn_edit = (Button)findViewById( R.id.btn_edit );
 
 		int rc = ActivityCompat.checkSelfPermission( this, Manifest.permission.CAMERA );
 		if( rc == PackageManager.PERMISSION_GRANTED )
@@ -60,6 +81,22 @@ public class MainActivity extends AppCompatActivity
 		}
 
 		_gestureDetector = new GestureDetector( this, new CaptureGestureListener() );
+		btn_toggleScan.setOnClickListener( new View.OnClickListener()
+		{
+			@Override
+			public void onClick( View v )
+			{
+				HandleToggleScan();
+			}
+		} );
+		btn_edit.setOnClickListener( new View.OnClickListener()
+		{
+			@Override
+			public void onClick( View v )
+			{
+				HandleEdit();
+			}
+		} );
 	}
 
 	private void requestCameraPermission()
@@ -104,7 +141,8 @@ public class MainActivity extends AppCompatActivity
 		Context context = getApplicationContext();
 
 		TextRecognizer textRecognizer = new TextRecognizer.Builder( context ).build();
-		textRecognizer.setProcessor( new OcrDetectorProcessor( _graphicOverlay ) );
+		_detectorProcessor = new OcrDetectorProcessor( _graphicOverlay );
+		textRecognizer.setProcessor( _detectorProcessor );
 
 		if( !textRecognizer.isOperational() )
 		{
@@ -132,6 +170,7 @@ public class MainActivity extends AppCompatActivity
 	protected void onResume()
 	{
 		super.onResume();
+		lbl_total.setText( "0" );
 		startCameraSource();
 	}
 
@@ -219,19 +258,49 @@ public class MainActivity extends AppCompatActivity
 	private boolean onTap( float rawX, float rawY )
 	{
 		boolean result = false;
-		OcrGraphic graphic = _graphicOverlay.getGraphicAtLocation( rawX, rawY );
 
-		if( graphic != null )
+		if( _frozen )
 		{
-			TextBlock text = graphic.getTextBlock();
+			OcrGraphic graphic = _graphicOverlay.getGraphicAtLocation( rawX, rawY );
 
-			if( text != null && text.getValue() != null )
+			if( graphic != null )
 			{
-				result = true;
+				//TextBlock text = graphic.getTextBlock();
+				Text text = graphic.getText();
+
+				if( text != null && text.getValue() != null )
+				{
+					if( graphic.toggleSelection() )
+						_selectedGraphics.add( graphic );
+					else
+					{
+						if( _selectedGraphics.contains( graphic ) ) // this should never not be the case
+							_selectedGraphics.remove( graphic );
+					}
+
+					UpdateTotal();
+
+					result = true;
+				}
 			}
 		}
 
 		return result;
+	}
+
+	private void UpdateTotal()
+	{
+		Money total = new Money();
+
+		for( OcrGraphic graphic : _selectedGraphics )
+		{
+			Money money = new Money();
+			money.parse( graphic.getTextValue() );
+
+			total.add( money );
+		}
+
+		lbl_total.setText( total.toString() );
 	}
 
 	private class CaptureGestureListener extends GestureDetector.SimpleOnGestureListener
@@ -241,5 +310,33 @@ public class MainActivity extends AppCompatActivity
 		{
 			return onTap( e.getRawX(), e.getRawY() ) || super.onSingleTapConfirmed( e );
 		}
+	}
+
+	private void HandleToggleScan()
+	{
+		_frozen = !_frozen;
+		_detectorProcessor.setFrozen( _frozen );
+
+		btn_toggleScan.setText( _frozen ? "Scan" : "Freeze" );
+	}
+
+	private void HandleEdit()
+	{
+		PricePart.GlobalPriceParts.clear();
+		for( OcrGraphic graphic : _selectedGraphics )
+		{
+			Money money = new Money();
+			money.parse( graphic.getTextValue() );
+
+			PricePart part = new PricePart( money, 1, true );
+
+			PricePart.GlobalPriceParts.add( part );
+		}
+
+		_selectedGraphics.clear();
+		_graphicOverlay.clear();
+
+		Intent intent = new Intent( this, EditActivity.class );
+		startActivity( intent );
 	}
 }
