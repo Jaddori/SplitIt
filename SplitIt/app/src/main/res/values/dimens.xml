@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btn_edit_width" type="dimen">64dip</item>
+    <item name="btn_edit_height" type="dimen">48dip</item>
+    <item name="lbl_total_height" type="dimen">48dip</item>
+</resources>
