@@ -4,4 +4,13 @@
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission. The application will now exit.</string>
     <string name="low_storage_error">Ocr dependencies cannot be downloaded due to low device storage</string>
+    <string name="scan_toggle_scan">Scan</string>
+    <string name="scan_toggle_freeze">Freeze</string>
+    <string name="total">Total:</string>
+    <string name="edit">Edit</string>
+    <string name="header_price">Price</string>
+    <string name="header_split">Split</string>
+    <string name="header_include">Include</string>
+    <string name="reset">Reset</string>
+    <string name="back">Back</string>
 </resources>

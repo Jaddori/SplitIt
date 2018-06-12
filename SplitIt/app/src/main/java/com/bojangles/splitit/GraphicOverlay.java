@@ -156,4 +156,16 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View
 			}
 		}
 	}
+
+	public List<T> getGraphics()
+	{
+		ArrayList<T> result = new ArrayList<>();
+
+		for( T graphic : _graphics )
+		{
+			result.add( graphic );
+		}
+
+		return result;
+	}
 }
